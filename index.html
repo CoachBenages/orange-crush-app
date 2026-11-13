@@ -50,7 +50,9 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .back{flex:none;display:flex;align-items:center;gap:2px;height:40px;padding:0 12px 0 8px;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-weight:800;font-size:15px}
 .back svg{width:20px;height:20px}
 .hero{position:relative}
-.hero-back{position:absolute;left:14px;top:calc(14px + var(--safe-t));display:flex;align-items:center;gap:2px;height:40px;padding:0 14px 0 8px;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-weight:800;font-size:15px}
+.hero-share{position:absolute;right:14px;top:calc(14px + var(--safe-t));display:flex;align-items:center;gap:6px;height:40px;padding:0 14px 0 11px;border-radius:12px;background:rgba(14,35,69,.55);border:1px solid rgba(255,255,255,.25);color:#fff;font-weight:800;font-size:15px;z-index:2}
+.hero-share svg{width:19px;height:19px}
+.hero-back{z-index:2;position:absolute;left:14px;top:calc(14px + var(--safe-t));display:flex;align-items:center;gap:2px;height:40px;padding:0 14px 0 8px;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-weight:800;font-size:15px}
 .sheet-x{width:38px;height:38px;border-radius:50%;background:#EEF2F8;display:grid;place-items:center;flex:none;font-size:22px;line-height:1;color:var(--navy);font-weight:700}
 .sheet-close{display:block;width:100%;height:50px;margin-top:14px;border-radius:14px;background:#EEF2F8;font-weight:800;color:var(--navy)}
 .top-logo{width:46px;height:46px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
@@ -418,7 +420,7 @@ function writeHash(){
 }
 (function init(){
   let sel = readHash();
-  if(sel.length){ S.sel=sel; S.view="home"; }
+  if(sel.length){ S.sel=sel; } // shared/team links open on the welcome screen with those teams pre-selected
 })();
 window.addEventListener("hashchange",()=>{ const s=readHash(); if(s.length){ S.sel=s; if(S.view==="pick") S.view="home"; render(); } });
 
@@ -481,7 +483,7 @@ function renderPick(){
   const grp=(p,ids)=>'<div class="grp"><div class="grp-ban p-'+p+'" style="--tc:'+PROGS[p].color+'">'+PROGS[p].label+'</div><div class="grid">'+ids.map(id=>card(TEAM[id],p==="prek")).join("")+'</div></div>';
   const n=S.sel.length;
   return '<div class="wrap" style="padding-bottom:110px">'+
-    '<div class="hero">'+(S.selSnap&&S.selSnap.length?'<button class="hero-back" data-act="back">'+I.back+'Back</button>':'')+'<img src="'+A.logo+'" alt="Crushy" data-act="logo"><div class="k">ORANGE CRUSH LACROSSE</div><h1>'+esc(CONFIG.season)+'</h1><p>Practices · Games · Directions</p></div>'+
+    '<div class="hero"><button class="hero-share" data-act="share" aria-label="Share this app">'+I.share+'<span>Share</span></button>'+(S.selSnap&&S.selSnap.length?'<button class="hero-back" data-act="back">'+I.back+'Back</button>':'')+'<img src="'+A.logo+'" alt="Crushy" data-act="logo"><div class="k">ORANGE CRUSH LACROSSE</div><h1>'+esc(CONFIG.season)+'</h1><p>Practices · Games · Directions</p></div>'+
     '<div class="welcome"><h2 class="h">Welcome to the Orange Crush Lacrosse Parent Hub</h2><p>Your home for everything Orange Crush this spring: practice and game schedules, field maps, directions, and weather updates. Pick your player’s team below to get started. Have more than one player? Select them all.</p><div class="wq">Questions? Contact Kevin Benages · <a href="mailto:orangecrush@napervillelacrosse.org">orangecrush@napervillelacrosse.org</a></div></div>'+
     '<div class="pick-q"><h2 class="h">Who are you here for?</h2></div>'+
     grp("prek",["prek"])+grp("boys",["u8b","u10b","u12b","u14b"])+grp("girls",["u8g","u10g","u12g","u14g"])+
