@@ -44,6 +44,7 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .top-title,.top-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:420px){.top.has-back .top-sub{display:none}.top.has-back .top-logo{width:38px;height:38px}}
 .sharebtn svg{width:20px;height:20px}
+.calcard .linkbtn{margin-right:8px}
 .sharecard .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .sharecard button{flex:1;min-width:150px;height:48px;border-radius:12px;font-weight:800;background:#EEF2F8;color:var(--navy)}
 .sharecard button.primary{background:var(--orange);color:#fff}
@@ -322,6 +323,21 @@ const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform=
 const mapsURL = addr => IOS ? appleURL(addr) : dirURL(addr);
 const otherMaps = addr => IOS ? ["Google Maps",dirURL(addr)] : ["Apple Maps",appleURL(addr)];
 const appleURL = addr => "https://maps.apple.com/?daddr="+encodeURIComponent(addr);
+const CAL_BASE = SB_URL + "/functions/v1/calendar";
+function feedURL(){ return CAL_BASE + "?teams=" + S.sel.join(","); }
+function webcalURL(){ return feedURL().replace(/^https:/, "webcal:"); }
+function googleSubURL(){ return "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent(webcalURL()); }
+function eventCalURL(e){ return IOS ? (CAL_BASE + "?id=" + encodeURIComponent(e.id)) : gcalURL(e); }
+function calCard(){
+  if(!S.sel.length) return "";
+  const names = S.sel.map(id=>TEAM[id].name).join(", ");
+  const apple = '<a class="linkbtn'+(IOS?' primary':'')+'" href="'+esc(webcalURL())+'">'+I.calAdd+(IOS?'Add to iPhone Calendar':'Apple Calendar')+'</a>';
+  const goog = '<a class="linkbtn'+(IOS?'':' primary')+'" href="'+esc(googleSubURL())+'" target="_blank" rel="noopener">'+I.calAdd+'Google Calendar</a>';
+  return '<div class="icard calcard"><h3>'+I.cal+'Add the whole season to your calendar</h3>'+
+    '<p>Every practice and game for <b>'+esc(names)+'</b>, in your phone\'s calendar. When a practice is cancelled or a game time is set, your calendar updates on its own.</p>'+
+    '<div>'+(IOS?apple+goog:goog+apple)+'<button class="linkbtn" data-act="copycal">Copy calendar link</button></div>'+
+    '<p class="tbd" style="font-size:13px;margin-top:10px">Added or removed a child? Add the calendar again so it matches. Same-day changes still come by email by 4:00 PM.</p></div>';
+}
 function gcalURL(e){
   const f = (ds,hm)=>ds.replace(/-/g,"")+"T"+hm.replace(":","")+"00";
   const who = e.teams.map(teamLabel).join(", ");
@@ -329,6 +345,16 @@ function gcalURL(e){
   let dates; if(e.start){ dates=f(e.date,e.start)+"/"+f(e.date,e.stop||e.start); } else { const n=parseD(e.date); n.setDate(n.getDate()+1); dates=e.date.replace(/-/g,"")+"/"+ymd(n).replace(/-/g,""); }
   const p = new URLSearchParams({action:"TEMPLATE",text:title,dates:dates,ctz:"America/Chicago",location:e.addr?(e.locName+", "+e.addr):"Location TBA",details:(e.zone?("Field: "+e.zone+"\n"):"")+(e.note||"")});
   return "https://calendar.google.com/calendar/render?"+p.toString();
+}
+const GAME_ARRIVE_MIN = 20;
+function arriveBy(e){ if(e.type!=="game"||!e.start) return ""; const [h,m]=e.start.split(":").map(Number); const t=h*60+m-GAME_ARRIVE_MIN; return pad(Math.floor(t/60))+":"+pad(t%60); }
+function gameTitle(e){ return esc(e.title)+(e.opp?' <span style="font-weight:600">vs '+esc(e.opp)+'</span>':''); }
+function gameInfo(e){
+  if(e.type!=="game") return "";
+  const rows=[];
+  if(e.start) rows.push('<div class="row-i">'+I.clock+'<div><div class="t1">Arrive by '+fmtT(arriveBy(e))+' '+ap(arriveBy(e))+'</div><div class="t2">'+GAME_ARRIVE_MIN+' minutes before the game</div></div></div>');
+  if(e.jersey) rows.push('<div class="row-i">'+I.shirt+'<div><div class="t1">Wear: '+esc(e.jersey)+'</div></div></div>');
+  return rows.join("");
 }
 function dirBtn(e){ return e.locTBA ? '<span class="btn" style="opacity:.45">'+I.nav+'Location TBA</span>' : '<a class="btn primary" href="'+mapsURL(e.addr)+'" target="_blank" rel="noopener">'+I.nav+'Directions</a>'; }
 function locBlock(e,sub){
@@ -383,6 +409,8 @@ function allEvents(){
     if(o.locName){ ev.locName=o.locName; ev.zone=""; }
     if(o.addr) ev.addr=o.addr;
     if(o.zone!=null && o.zone!=="") ev.zone=o.zone;
+    if(o.opp) ev.opp=o.opp;
+    if(o.jersey) ev.jersey=o.jersey;
     ev.when = at(ev.date,ev.start||"12:00"); ev.ends = ev.start ? at(ev.date,ev.stop||ev.start) : at(ev.date,"23:59");
     ev.locTBA = !ev.addr;
     return ev;
@@ -428,6 +456,7 @@ function writeHash(){ try{ if(location.hash) history.replaceState(history.state,
 const I = {
   globe:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>',
   share:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
+  shirt:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M8 3h8l5 4-3 3-2-1.5V21H8V8.5L6 10 3 7z"/></svg>',
   back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
   cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
@@ -460,6 +489,7 @@ function render(){
   else if(S.view==="info") body=renderInfo();
   else if(S.view==="coach") body=renderCoach();
   app.innerHTML = '<div class="wrap">'+renderTop()+notice()+body+'<div class="foot">Orange Crush Lacrosse · '+esc(CONFIG.season)+(CONFIG.website?' · <a href="'+esc(CONFIG.website.url)+'" target="_blank" rel="noopener" style="color:var(--orange)">Website</a>':'')+'</div></div>'+renderNav();
+  if(S.view==="coach") loadUsage();
 }
 
 function renderTop(){
@@ -520,14 +550,14 @@ function nextCard(tid,evs){
   return '<div class="next '+(e.status==="cancelled"?"cancelled":"")+(today?" tonight":"")+'" style="--tc:'+c+'">'+
     '<div class="next-band p-'+t.prog+'"><div class="next-top"><span class="tteam"><i></i>'+esc(t.name)+(today?'<span class="tonight-tag">'+dayWord+'</span>':'')+'</span><span class="badge '+e.status+'">'+badge+'</span></div>'+
     '<div class="next-when"><div class="next-date">'+fmtDate(e.date)+'</div><div class="next-rel">'+esc(pre)+'</div></div>'+
-    '<div class="next-time">'+fmtRange(e.start,e.stop)+' · '+(e.type==="practice"?"Practice":esc(e.title))+'</div></div>'+
+    '<div class="next-time">'+fmtRange(e.start,e.stop)+' · '+(e.type==="practice"?"Practice":gameTitle(e))+'</div></div>'+
     '<div class="next-body">'+
-      locBlock(e)+
+      locBlock(e)+gameInfo(e)+
       (e.note?'<div class="note'+(e.status==="cancelled"?" c":"")+'">'+esc(e.note)+'</div>':'')+
       (fb?'<div class="fallback">Next session: '+fmtDate(fb.date)+' · '+fmtRange(fb.start,fb.stop)+'</div>':'')+
       '<div class="btns">'+dirBtn(e)+
       (e.type==="practice"&&e.loc==="nnhs"&&!DATA.overrides[e.id]?.locName?'<button class="btn" data-act="map" data-wave="'+e.wave+'">'+I.map+'Field map</button>':'<button class="btn" data-act="ev" data-id="'+esc(e.id)+'">'+I.info+'Details</button>')+
-      '<a class="btn" href="'+gcalURL(e)+'" target="_blank" rel="noopener">'+I.calAdd+'Calendar</a></div>'+
+      '<a class="btn" href="'+esc(eventCalURL(e))+'" target="_blank" rel="noopener">'+I.calAdd+'Calendar</a></div>'+
     '</div></div>';
 }
 function evRow(e,showTeam){
@@ -538,7 +568,7 @@ function evRow(e,showTeam){
   const stat = e.status!=="on"?'<span class="badge '+e.status+'">'+(e.status==="cancelled"?"CANCELLED":"CHANGED")+'</span>':'';
   return '<button class="ev'+(e.status==="cancelled"?" is-cancelled":"")+(past?" past":"")+'" style="--tc:'+c+'" data-act="ev" data-id="'+esc(e.id)+'">'+
     '<div class="ev-date"><div class="d1">'+DOW[d.getDay()]+'</div><div class="d2">'+d.getDate()+'</div><div class="d3">'+MON[d.getMonth()]+'</div></div>'+
-    '<div class="ev-main"><div class="ev-t">'+typeTag+esc(e.type==="practice"?(showTeam?who:"Practice"):e.title)+(e.type!=="practice"&&showTeam?' <span style="font-weight:600;color:var(--muted)">· '+esc(who)+'</span>':'')+'</div>'+
+    '<div class="ev-main"><div class="ev-t">'+typeTag+(e.type==="practice"?esc(showTeam?who:"Practice"):esc(e.title)+(e.opp?' vs '+esc(e.opp):''))+(e.type!=="practice"&&showTeam?' <span style="font-weight:600;color:var(--muted)">· '+esc(who)+'</span>':'')+'</div>'+
     '<div class="ev-s">'+fmtRange(e.start,e.stop)+' · '+esc(e.zone||(e.locTBA?"Location TBA":e.locName))+'</div></div>'+stat+'</button>';
 }
 function selEvents(){
@@ -552,7 +582,8 @@ function renderHome(){
   const up=selEvents().filter(e=>e.ends>=now).slice(0,6);
   return '<section class="sec"><div class="sec-h"><h2>Next up</h2></div>'+cards+'</section>'+
     '<section class="sec"><div class="sec-h"><h2>Coming up</h2><button data-act="go" data-v="schedule">Full schedule →</button></div>'+
-    (up.length?'<div class="list">'+up.map(e=>evRow(e,true)).join("")+'</div>':'<div class="empty">No upcoming events.</div>')+'</section>';
+    (up.length?'<div class="list">'+up.map(e=>evRow(e,true)).join("")+'</div>':'<div class="empty">No upcoming events.</div>')+'</section>'+
+    (S.sel.length?'<section class="sec">'+calCard()+'</section>':'');
 }
 function renderSchedule(){
   const now=new Date();
@@ -592,6 +623,7 @@ function renderInfo(){
   const contacts = CONFIG.contacts.length ? CONFIG.contacts.map(c=>'<p><b>'+esc(c.name)+'</b>'+(c.role?' · '+esc(c.role):'')+(c.email?'<br><a href="mailto:'+esc(c.email)+'" style="color:var(--orange);font-weight:700">'+esc(c.email)+'</a>':'')+(c.phone?'<br><a href="tel:'+esc(c.phone.replace(/[^0-9+]/g,""))+'" style="color:var(--orange);font-weight:700">'+esc(c.phone)+'</a>':'')+'</p>').join("")+(CONFIG.contactNote?'<p style="font-size:14px;color:var(--muted)">'+esc(CONFIG.contactNote)+'</p>':'') : '<p class="tbd">Contact info coming soon.</p>';
   return '<section class="sec">'+
     '<div class="icard sharecard"><h3>'+I.share+'Share Orange Crush</h3><p>Send the app to another parent, grandparent or carpool driver.</p><div class="row"><button class="primary" data-act="share">Share the app</button>'+'</div></div>'+
+    calCard()+
     '<div class="icard"><h3>'+I.pin+'Practice location</h3><a class="maplink" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener"><p><b>'+esc(L.name)+'</b><br>'+esc(L.addr)+'</p><span class="maphint">Open in Maps ›</span></a><p>Tuesdays &amp; Thursdays · First practice '+fmtDateL(CONFIG.seasonStart)+'<br>Pre-K Festival: Tuesdays only, '+fmtDate(FIRST.prek)+' – '+fmtDate(TEAM.prek.last)+'</p><a class="linkbtn primary" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener">'+I.nav+'Directions</a><a class="linkbtn" href="'+otherMaps(L.addr)[1]+'" target="_blank" rel="noopener">'+otherMaps(L.addr)[0]+'</a><button class="linkbtn" data-act="map" data-wave="1">'+I.map+'Field map</button></div>'+
     '<div class="icard"><h3>'+I.car+'Parking</h3><p>'+esc(CONFIG.parking)+'</p></div>'+
     '<div class="icard"><h3>'+I.bell+'Cancellations</h3><p>'+esc(CONFIG.cancelPolicy)+'</p></div>'+
@@ -616,6 +648,7 @@ function renderCoach(){
   const cust=DATA.custom.slice().sort((a,b)=>at(a.date,a.start)-at(b.date,b.start));
   const changed=Object.keys(DATA.overrides).length;
   return '<section class="sec">'+
+  '<div class="icard" id="c-usage"><h3>'+I.people+'App opens</h3><p class="tbd">Loading…</p></div>'+
   '<div class="icard" style="padding:12px 16px"><b>Coach mode</b> · changes save instantly for every family.'+(live.at?'<br><span style="font-size:13px;color:var(--muted)">Last saved '+esc(new Date(live.at).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))+'</span>':'')+'</div>'+
   '<div class="icard form"><h3>'+I.bell+'Announcement banner</h3><textarea id="c-notice" placeholder="Shown at the top of every screen. Leave empty for none.">'+esc(DATA.notice)+'</textarea><div class="act"><button class="primary" data-act="c-notice">Publish banner</button><button data-act="c-notice-clear">Clear</button></div></div>'+
   '<div class="icard form" id="f-night"><h3>'+I.cloud+'Cancel or change a whole night</h3>'+
@@ -640,6 +673,18 @@ function renderCoach(){
   '<div class="icard form"><h3>'+I.coach+'Change coach passcode</h3><label>New passcode (8+ characters)</label><input type="password" id="p-new" autocomplete="new-password"><label>Type it again</label><input type="password" id="p-new2" autocomplete="new-password"><div class="act"><button class="primary" data-act="c-pass">Change passcode</button><button data-act="coachoff">Lock coach mode</button></div></div>'+
   '<div class="statusline" id="c-status"></div></section>';
 }
+async function loadUsage(){
+  const box=document.getElementById("c-usage"); if(!box||!coachPass()) return;
+  try{
+    const rows=await rpc("crush_stats",{pass:coachPass()})||[];
+    const today=ymd(new Date()); const by={}; rows.forEach(r=>by[r.day]=r.opens);
+    let wk=0, days=[]; for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=ymd(d); const v=by[k]||0; if(i<7) wk+=v; days.push([k,v]); }
+    const mx=Math.max(1,...days.map(d=>d[1]));
+    box.innerHTML='<h3>'+I.people+'App opens</h3><div style="display:flex;gap:18px;margin-top:4px"><div><div class="next-date" style="font-size:30px;color:var(--navy)">'+(by[today]||0)+'</div><div class="tbd" style="font-style:normal">today</div></div><div><div class="next-date" style="font-size:30px;color:var(--navy)">'+wk+'</div><div class="tbd" style="font-style:normal">last 7 days</div></div></div>'+
+      '<div style="display:flex;align-items:flex-end;gap:4px;height:54px;margin-top:12px">'+days.map(([k,v])=>'<div title="'+k+': '+v+'" style="flex:1;background:'+(k===today?'var(--orange)':'#C9D4E6')+';border-radius:4px 4px 0 0;height:'+Math.max(3,Math.round(v/mx*54))+'px"></div>').join("")+'</div>'+
+      '<p style="font-size:12px;color:var(--muted);margin-top:6px">Last 14 days. Counts visits only, nothing about who.</p>';
+  }catch(e){ box.innerHTML='<h3>'+I.people+'App opens</h3><p class="tbd">Couldn\'t load counts.</p>'; }
+}
 function getChecked(name){ return [...document.querySelectorAll('input[name="'+name+'"]:checked')].map(x=>x.value); }
 
 /* ---------- event sheet ---------- */
@@ -648,13 +693,13 @@ function openEvent(id){
   const who=e.teams.map(teamLabel).join(", ");
   const status=e.status==="cancelled"?'<span class="badge cancelled">CANCELLED</span>':e.status==="moved"?'<span class="badge moved">CHANGED</span>':'<span class="badge on">ON</span>';
   let h='<div class="scrim" data-act="close"><div class="sheet" data-stop><div class="grab"></div>'+
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><h3 class="h">'+esc(e.type==="practice"?who+" Practice":e.title)+'</h3><div class="sub">'+(e.type!=="practice"?esc(who):"")+'</div></div>'+'<div style="display:flex;gap:8px;align-items:center">'+status+'<button class="sheet-x" data-act="x" aria-label="Close">×</button></div></div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><h3 class="h">'+(e.type==="practice"?esc(who+" Practice"):gameTitle(e))+'</h3><div class="sub">'+(e.type!=="practice"?esc(who):"")+'</div></div>'+'<div style="display:flex;gap:8px;align-items:center">'+status+'<button class="sheet-x" data-act="x" aria-label="Close">×</button></div></div>'+
     '<div class="row-i" style="margin-top:12px">'+I.clock+'<div><div class="t1">'+fmtDateL(e.date)+'</div><div class="t2">'+fmtRange(e.start,e.stop)+'</div></div></div>'+
-    locBlock(e)+
+    locBlock(e)+gameInfo(e)+
     (e.note?'<div class="note'+(e.status==="cancelled"?" c":"")+'">'+esc(e.note)+'</div>':'')+
     '<div class="btns">'+dirBtn(e)+
     (e.type==="practice"&&e.loc==="nnhs"&&e.wave?'<button class="btn" data-act="map" data-wave="'+e.wave+'">'+I.map+'Field map</button>':(e.locTBA?'<span class="btn" style="opacity:.45">'+I.pin+'Maps</span>':'<a class="btn" href="'+otherMaps(e.addr)[1]+'" target="_blank" rel="noopener">'+I.pin+otherMaps(e.addr)[0]+'</a>'))+
-    '<a class="btn" href="'+gcalURL(e)+'" target="_blank" rel="noopener">'+I.calAdd+'Calendar</a></div>';
+    '<a class="btn" href="'+esc(eventCalURL(e))+'" target="_blank" rel="noopener">'+I.calAdd+'Calendar</a></div>';
   if(S.coach) h+=coachEventForm(e);
   h+='<button class="sheet-close" data-act="x">Close</button></div></div>';
   openOv(h);
@@ -664,6 +709,7 @@ function coachEventForm(e){
   return '<div class="form" style="border-top:1px solid var(--line);margin-top:18px;padding-top:6px"><label>Coach · status</label><select id="e-status"><option value="on"'+(e.status==="on"?" selected":"")+'>On</option><option value="cancelled"'+(e.status==="cancelled"?" selected":"")+'>Cancelled</option><option value="moved"'+(e.status==="moved"?" selected":"")+'>Changed</option></select>'+
   '<label>Note to families</label><input id="e-note" value="'+esc(o.note!=null?o.note:(custom?e.note:""))+'" placeholder="optional">'+
   '<div class="two"><div><label>Start</label><input type="time" id="e-start" value="'+esc(e.start)+'"></div><div><label>End</label><input type="time" id="e-stop" value="'+esc(e.stop||"")+'"></div></div>'+
+  (e.type==="game"?'<div class="two"><div><label>Opponent</label><input id="e-opp" value="'+esc(e.opp||"")+'" placeholder="e.g. Wheaton Warriors"></div><div><label>Jersey / wear</label><input id="e-jersey" value="'+esc(e.jersey||"")+'" placeholder="e.g. White (home)"></div></div>':'')+
   '<label>Field / spot</label><input id="e-zone" value="'+esc(e.zone||"")+'">'+
   '<label>'+(e.type==="game"?"Game location":"Move to another location (optional)")+'</label><input id="e-loc" value="'+esc(o.locName||"")+'" placeholder="Location name">'+
   '<input id="e-addr" style="margin-top:8px" value="'+esc(o.addr||"")+'" placeholder="Address">'+
@@ -732,6 +778,7 @@ document.addEventListener("click",async ev=>{
   if(act==="close"){ if(sheet && ev.target.closest(".sheet")) return; closeOv(); return; }
   switch(act){
     case "x": closeOv(); return;
+    case "copycal": try{ await navigator.clipboard.writeText(feedURL()); toast("Calendar link copied"); }catch(e){ toast(feedURL()); } return;
     case "back": goBack(); return;
     case "logo":{
       const now=Date.now(); logoTaps=logoTaps.filter(t=>now-t<2500); logoTaps.push(now);
@@ -812,6 +859,7 @@ document.addEventListener("click",async ev=>{
       if(id.startsWith("c-")){
         const c=n.custom.find(x=>x.id===id); if(!c) return;
         c.start=g("e-start")||c.start; c.stop=g("e-stop"); c.zone=g("e-zone"); c.note=g("e-note");
+        if(document.getElementById("e-opp")){ c.opp=g("e-opp"); c.jersey=g("e-jersey"); }
         if(g("e-loc")) c.locName=g("e-loc"); if(g("e-addr")) c.addr=g("e-addr");
         const st=g("e-status"); if(st==="on") delete n.overrides[id]; else n.overrides[id]={status:st};
       } else {
@@ -823,6 +871,7 @@ document.addEventListener("click",async ev=>{
         if(g("e-zone")!==(base.zone||"")) o.zone=g("e-zone");
         if(base.type==="game"&&g("e-stop")&&!base.stop) o.stop=g("e-stop");
         if(g("e-loc")) o.locName=g("e-loc"); if(g("e-addr")) o.addr=g("e-addr");
+        if(document.getElementById("e-opp")){ if(g("e-opp")) o.opp=g("e-opp"); if(g("e-jersey")) o.jersey=g("e-jersey"); }
         if(Object.keys(o).length) n.overrides[id]=o; else delete n.overrides[id];
       }
       await save(n,"e-msg"); return;
@@ -840,6 +889,7 @@ function defaultWave(){ const w=S.sel.map(id=>TEAM[id].wave); return w.length&&w
 try{ history.replaceState({v:S.view},""); }catch(e){}
 render();
 loadState();
+(function(){ try{ if(sessionStorage.getItem("crush-hit")) return; sessionStorage.setItem("crush-hit","1"); }catch(e){} if(location.protocol==="https:") fetch(SB_URL+"/rest/v1/rpc/crush_hit",{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:"{}"}).catch(()=>{}); })();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") loadState(); });
 setInterval(()=>{ if(document.visibilityState==="visible") loadState(); }, 5*60*1000);
 setInterval(()=>{ if(document.visibilityState==="visible" && S.view==="home" && !ov.innerHTML) render(); }, 60*1000);
