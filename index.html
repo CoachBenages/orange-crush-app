@@ -646,7 +646,8 @@ function equipCard(){
     return '<div style="--tc:'+PROGS[p].color+'"><div class="eqhead">'+q.label+'</div>'+
       '<ul class="eqlist">'+q.items.map(x=>'<li>'+I.check+esc(x)+'</li>').join("")+'</ul>'+
       (q.jersey?'<div class="jersey"><b>'+esc(q.jersey.title)+'</b><p>'+esc(q.jersey.text)+'</p><p style="margin-top:8px"><b style="display:inline">To order a jersey,</b> contact Kevin Benages at <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20jersey%20order" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>':'')+'</div>'; };
-  return '<div class="icard"><h3>'+I.shirt+'Equipment</h3><p>Required for every practice and game.</p>'+order.map(block).join("")+
+  return '<div class="icard"><h3>'+I.shirt+'Equipment</h3><p>Required for every practice and game. All players are responsible for supplying their own equipment.</p>'+order.map(block).join("")+
+    '<div class="jersey" style="--tc:var(--orange);margin-top:16px"><b>Need equipment? Rentals are available.</b><p>Equipment rentals are available for all players. To request a rental, email Kevin Benages at <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20equipment%20rental%20request" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>'+
     '<div class="gameday"><b>Game day</b><p style="margin-top:4px">Arrive 20 minutes before game time with all required equipment.</p></div></div>';
 }
 function renderInfo(){
