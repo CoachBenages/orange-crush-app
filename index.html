@@ -293,12 +293,12 @@ const CONFIG = {
 const EQUIP = {
   boys: {
     label: "Boys",
-    jersey: { title: "Orange Crush jersey (2026 or newer)", text: "Returning players may reuse their Orange Crush jersey from 2026 or later. Jerseys from before 2026 cannot be used. If a jersey is lost or outgrown, a new one must be purchased." },
+    jersey: { title: "Orange Crush jersey (2026 or newer)", text: "Returning players may reuse jerseys from 2026 or later. Pre-2026 jerseys can't be used. Lost or outgrown? A new one must be purchased." },
     items: ["Helmet", "Mouthguard", "Shoulder pads", "Elbow pads", "Gloves", "Stick", "Plastic molded cleats"]
   },
   girls: {
     label: "Girls",
-    jersey: { title: "Orange Crush jersey (2026 or newer)", text: "Returning players may reuse their Orange Crush jersey from 2026 or later. Jerseys from before 2026 cannot be used. If a jersey is lost or outgrown, a new one must be purchased." },
+    jersey: { title: "Orange Crush jersey (2026 or newer)", text: "Returning players may reuse jerseys from 2026 or later. Pre-2026 jerseys can't be used. Lost or outgrown? A new one must be purchased." },
     items: ["Protective eye goggles", "Mouthguard", "Stick", "Plastic molded cleats"]
   }
 };
@@ -645,12 +645,13 @@ function equipCard(){
   const block=p=>{ const q=EQUIP[p];
     return '<div style="--tc:'+PROGS[p].color+'"><div class="eqhead">'+q.label+'</div>'+
       '<ul class="eqlist">'+q.items.map(x=>'<li>'+I.check+esc(x)+'</li>').join("")+'</ul>'+
-      (q.jersey?'<div class="jersey"><b>'+esc(q.jersey.title)+'</b><p>'+esc(q.jersey.text)+'</p><p style="margin-top:8px"><b style="display:inline">To order a jersey,</b> contact Kevin Benages at <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20jersey%20order" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>':'')+'</div>'; };
+      (false&&q.jersey?'<div class="jersey"><b>'+esc(q.jersey.title)+'</b><p>'+esc(q.jersey.text)+'</p><p style="margin-top:8px"><b style="display:inline">To order:</b> <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20jersey%20order" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>':'')+'</div>'; };
   const prekSel=S.sel.includes("prek");
-  const prek='<div style="--tc:'+PROGS.prek.color+'"><div class="eqhead">Pre-K Festival</div><p style="margin:0">Pre-K is co-ed. <b>Pre-K boys</b> need the <b style="color:'+PROGS.boys.color+'">Boys</b> equipment and <b>Pre-K girls</b> need the <b style="color:'+PROGS.girls.color+'">Girls</b> equipment listed '+(prekSel?'below':'above')+'. The Orange Crush jersey rule applies to Pre-K too.</p></div>';
-  return '<div class="icard"><h3>'+I.shirt+'Equipment</h3><p>Required for every practice and game. All players are responsible for supplying their own equipment.</p>'+(prekSel?prek:'')+order.map(block).join("")+(prekSel?'':prek)+
-    '<div class="jersey" style="--tc:var(--orange);margin-top:16px"><b>Need equipment? Rentals are available.</b><p>Equipment rentals are available for all players. To request a rental, email Kevin Benages at <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20equipment%20rental%20request" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>'+
-    '<div class="gameday"><b>Game day</b><p style="margin-top:4px">Arrive 20 minutes before game time with all required equipment.</p></div></div>';
+  const prek='<div style="--tc:'+PROGS.prek.color+'"><div class="eqhead">Pre-K Festival</div><p style="margin:0">Boys use the <b style="color:'+PROGS.boys.color+'">Boys</b> list, girls use the <b style="color:'+PROGS.girls.color+'">Girls</b> list.</p></div>';
+  return '<div class="icard"><h3>'+I.shirt+'Equipment</h3><p>Required for every practice and game. Players supply their own.</p>'+(prekSel?prek:'')+order.map(block).join("")+(prekSel?'':prek)+
+    '<div class="jersey" style="--tc:var(--navy);margin-top:16px"><b>'+esc(EQUIP.boys.jersey.title)+'</b><p>All players, including Pre-K. '+esc(EQUIP.boys.jersey.text)+'</p><p style="margin-top:8px"><b style="display:inline">To order:</b> <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20jersey%20order" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>'+
+    '<div class="jersey" style="--tc:var(--orange);margin-top:16px"><b>Need equipment? Rentals available.</b><p><b style="display:inline">To request:</b> <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20equipment%20rental%20request" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>'+
+    '<div class="gameday"><b>Game day</b><p style="margin-top:4px">Arrive 20 minutes early in full equipment.</p></div></div>';
 }
 function renderInfo(){
   const L=LOCS.nnhs;
