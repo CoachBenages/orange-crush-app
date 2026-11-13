@@ -298,6 +298,7 @@ const EQUIP = {
   },
   girls: {
     label: "Girls",
+    jersey: { title: "Orange Crush jersey (2026 or newer)", text: "Returning players may reuse their Orange Crush jersey from 2026 or later. Jerseys from before 2026 cannot be used. If a jersey is lost or outgrown, a new one must be purchased." },
     items: ["Protective eye goggles", "Mouthguard", "Stick", "Plastic molded cleats"]
   }
 };
@@ -644,7 +645,7 @@ function equipCard(){
   const block=p=>{ const q=EQUIP[p];
     return '<div style="--tc:'+PROGS[p].color+'"><div class="eqhead">'+q.label+'</div>'+
       '<ul class="eqlist">'+q.items.map(x=>'<li>'+I.check+esc(x)+'</li>').join("")+'</ul>'+
-      (q.jersey?'<div class="jersey"><b>'+esc(q.jersey.title)+'</b><p>'+esc(q.jersey.text)+'</p></div>':'')+'</div>'; };
+      (q.jersey?'<div class="jersey"><b>'+esc(q.jersey.title)+'</b><p>'+esc(q.jersey.text)+'</p><p style="margin-top:8px"><b style="display:inline">To order a jersey,</b> contact Kevin Benages at <a href="mailto:orangecrush@napervillelacrosse.org?subject=Orange%20Crush%20jersey%20order" style="color:var(--orange);font-weight:800;word-break:break-word">orangecrush@napervillelacrosse.org</a></p></div>':'')+'</div>'; };
   return '<div class="icard"><h3>'+I.shirt+'Equipment</h3><p>Required for every practice and game.</p>'+order.map(block).join("")+
     '<div class="gameday"><b>Game day</b><p style="margin-top:4px">Arrive 20 minutes before game time with all required equipment.</p></div></div>';
 }
