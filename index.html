@@ -121,12 +121,17 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .tba{margin-top:10px;font-size:13px;color:var(--muted);font-weight:600;text-align:center}
 
 /* picker */
-.hero{background:radial-gradient(120% 90% at 50% 0%,var(--navy3) 0%,var(--navy) 60%);color:#fff;text-align:center;padding:calc(26px + var(--safe-t)) 20px 30px;border-radius:0 0 28px 28px}
+.hero{background:radial-gradient(120% 90% at 50% 0%,var(--navy3) 0%,var(--navy) 60%);color:#fff;text-align:center;padding:calc(26px + var(--safe-t)) 20px 44px;border-radius:0 0 28px 28px}
 .hero img{width:100px;height:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
 .hero .k{font-size:12px;letter-spacing:.2em;font-weight:800;color:var(--orange);margin-top:8px}
 .hero h1{margin:6px 0 4px;font-family:Poppins,sans-serif;font-weight:800;font-size:30px;line-height:1.05}
 .hero p{margin:0;color:#b8c5dc;font-weight:600}
-.pick-q{padding:24px 18px 4px}
+.welcome{margin:-18px 16px 0;position:relative;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:18px 18px 16px;border-top:4px solid var(--orange)}
+.welcome h2{margin:0;font-size:20px;line-height:1.2}
+.welcome p{margin:8px 0 0;color:#2b3b57;font-size:15px;line-height:1.5}
+.welcome .wq{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:14px;font-weight:600;color:var(--muted)}
+.welcome .wq a{color:var(--orange);font-weight:800;word-break:break-word}
+.pick-q{padding:22px 18px 0}
 .pick-q h2{margin:0;font-size:22px}
 .pick-q p{margin:6px 0 0;color:var(--muted);font-weight:500}
 .grp{padding:16px 16px 0}
@@ -450,7 +455,8 @@ function renderPick(){
   const n=S.sel.length;
   return '<div class="wrap" style="padding-bottom:110px">'+
     '<div class="hero">'+(S.selSnap&&S.selSnap.length?'<button class="hero-back" data-act="back">'+I.back+'Back</button>':'')+'<img src="'+A.logo+'" alt="Crushy" data-act="logo"><div class="k">ORANGE CRUSH LACROSSE</div><h1>'+esc(CONFIG.season)+'</h1><p>Practices · Games · Directions</p></div>'+
-    '<div class="pick-q"><h2 class="h">Who are you here for?</h2><p>Tap every team your family has a player on.</p></div>'+
+    '<div class="welcome"><h2 class="h">Welcome to the Orange Crush Lacrosse Parent Hub</h2><p>Your home for everything Orange Crush this spring: practice and game schedules, field maps, directions, and weather updates. Pick your player’s team below to get started. Have more than one player? Select them all.</p><div class="wq">Questions? Contact Kevin Benages · <a href="mailto:orangecrush@napervillelacrosse.org">orangecrush@napervillelacrosse.org</a></div></div>'+
+    '<div class="pick-q"><h2 class="h">Who are you here for?</h2></div>'+
     grp("prek",["prek"])+grp("boys",["u8b","u10b","u12b","u14b"])+grp("girls",["u8g","u10g","u12g","u14g"])+
     (S.coach?'<div class="grp"><button class="chip" data-act="selall">Coach: select all teams</button></div>':'')+
     '</div><div class="pick-go"><button data-act="done" '+(n?"":"disabled")+'>'+(n?("View schedule"+(n>1?" · "+n+" teams":"")):"Select a team")+'</button></div>';
