@@ -414,15 +414,11 @@ function readHash(){
   if(!h) return [];
   return h.split("-").filter(x=>TEAM[x]);
 }
-function writeHash(){
-  const h = S.sel.join("-");
-  try{ history.replaceState(history.state,"",h?("#"+h):(location.pathname+location.search)); }catch(e){ try{ location.hash=h; }catch(_){} }
-}
+function writeHash(){ try{ if(location.hash) history.replaceState(history.state,"",location.pathname+location.search); }catch(e){} }
 (function init(){
   let sel = readHash();
-  if(sel.length){ S.sel=sel; } // shared/team links open on the welcome screen with those teams pre-selected
+  // Every visitor starts on the welcome screen and picks their own teams (links never pre-select).
 })();
-window.addEventListener("hashchange",()=>{ const s=readHash(); if(s.length){ S.sel=s; if(S.view==="pick") S.view="home"; render(); } });
 
 /* ================= icons ================= */
 const I = {
@@ -591,7 +587,7 @@ function renderInfo(){
   const rows=TEAMS.map(t=>'<tr style="--tc:'+tColor(t.id)+'"><td><i></i>'+esc(t.name)+' <span style="color:var(--muted)">· '+esc(t.days?"Tue only":t.grade.replace(" grade",""))+'</span></td><td>'+fmtRange(t.start,t.stop)+'</td></tr>').join("");
   const contacts = CONFIG.contacts.length ? CONFIG.contacts.map(c=>'<p><b>'+esc(c.name)+'</b>'+(c.role?' · '+esc(c.role):'')+(c.email?'<br><a href="mailto:'+esc(c.email)+'" style="color:var(--orange);font-weight:700">'+esc(c.email)+'</a>':'')+(c.phone?'<br><a href="tel:'+esc(c.phone.replace(/[^0-9+]/g,""))+'" style="color:var(--orange);font-weight:700">'+esc(c.phone)+'</a>':'')+'</p>').join("")+(CONFIG.contactNote?'<p style="font-size:14px;color:var(--muted)">'+esc(CONFIG.contactNote)+'</p>':'') : '<p class="tbd">Contact info coming soon.</p>';
   return '<section class="sec">'+
-    '<div class="icard sharecard"><h3>'+I.share+'Share Orange Crush</h3><p>Send the app to another parent, grandparent or carpool driver.</p><div class="row"><button class="primary" data-act="share">Share the app</button>'+(S.sel.length?'<button data-act="share" data-team="1">Share '+esc(S.sel.length===1?TEAM[S.sel[0]].short:"my teams")+' schedule</button>':'')+'</div></div>'+
+    '<div class="icard sharecard"><h3>'+I.share+'Share Orange Crush</h3><p>Send the app to another parent, grandparent or carpool driver.</p><div class="row"><button class="primary" data-act="share">Share the app</button>'+'</div></div>'+
     '<div class="icard"><h3>'+I.pin+'Practice location</h3><a class="maplink" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener"><p><b>'+esc(L.name)+'</b><br>'+esc(L.addr)+'</p><span class="maphint">Open in Maps ›</span></a><p>Tuesdays &amp; Thursdays · First practice '+fmtDateL(CONFIG.seasonStart)+'<br>Pre-K Festival: Tuesdays only, '+fmtDate(FIRST.prek)+' – '+fmtDate(TEAM.prek.last)+'</p><a class="linkbtn primary" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener">'+I.nav+'Directions</a><a class="linkbtn" href="'+otherMaps(L.addr)[1]+'" target="_blank" rel="noopener">'+otherMaps(L.addr)[0]+'</a><button class="linkbtn" data-act="map" data-wave="1">'+I.map+'Field map</button></div>'+
     '<div class="icard"><h3>'+I.car+'Parking</h3><p>'+esc(CONFIG.parking)+'</p></div>'+
     '<div class="icard"><h3>'+I.bell+'Cancellations</h3><p>'+esc(CONFIG.cancelPolicy)+'</p></div>'+
