@@ -45,6 +45,15 @@ input,select,textarea{font:inherit;color:var(--ink)}
 @media (max-width:420px){.top.has-back .top-sub{display:none}.top.has-back .top-logo{width:38px;height:38px}}
 .sharebtn svg{width:20px;height:20px}
 .calcard .linkbtn{margin-right:8px}
+.eqhead{display:flex;align-items:center;gap:10px;margin:14px 0 6px;font-family:Oswald,sans-serif;font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;color:var(--tc)}
+.eqhead:before{content:"";width:6px;height:22px;border-radius:3px;background:var(--tc)}
+.eqlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.eqlist li{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:6px 0}
+.eqlist li svg{flex:none;color:var(--tc)}
+.jersey{margin-top:10px;background:color-mix(in srgb,var(--tc) 8%,#fff);border:1.5px solid color-mix(in srgb,var(--tc) 30%,#fff);border-radius:12px;padding:10px 12px}
+.jersey b{display:block;color:var(--navy)}
+.jersey p{margin:4px 0 0;font-size:14px;color:#2b3b57}
+.gameday{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .sharecard .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .sharecard button{flex:1;min-width:150px;height:48px;border-radius:12px;font-weight:800;background:#EEF2F8;color:var(--navy)}
 .sharecard button.primary{background:var(--orange);color:#fff}
@@ -280,6 +289,17 @@ const CONFIG = {
   contactNote: "All program and team communication comes from Kevin Benages. Please reach out to him directly with any questions.",
   parking: "Park in the main school lot, then walk down to the access road that runs along the turf fields. Please stay on the paved path and off the grass. The walking route is marked on the Field Map.",
   girlsEndTBA: true
+};
+const EQUIP = {
+  boys: {
+    label: "Boys",
+    jersey: { title: "Orange Crush jersey (2026 or newer)", text: "Returning players may reuse their Orange Crush jersey from 2026 or later. Jerseys from before 2026 cannot be used. If a jersey is lost or outgrown, a new one must be purchased." },
+    items: ["Helmet", "Mouthguard", "Shoulder pads", "Elbow pads", "Gloves", "Stick", "Plastic molded cleats"]
+  },
+  girls: {
+    label: "Girls",
+    items: ["Protective eye goggles", "Mouthguard", "Stick", "Plastic molded cleats"]
+  }
 };
 const LOCS = {
   nnhs: { name: "Naperville North HS · Turf Complex", addr: "899 N Mill St, Naperville, IL 60563" }
@@ -617,6 +637,17 @@ function renderMap(){
     (S.wave===2?'<div class="icard" style="margin-top:12px"><h3>'+I.clock+'7:00 – 7:15 overlap</h3><p>U10 practices on the right field until 7:15. U12 &amp; U14 warm up in the middle strip between the fields, then move to their zones.</p></div>':'')+
     '</section>';
 }
+function equipCard(){
+  const progs=["boys","girls"];
+  const mine=progs.filter(p=>S.sel.some(id=>TEAM[id].prog===p));
+  const order=mine.concat(progs.filter(p=>!mine.includes(p)));
+  const block=p=>{ const q=EQUIP[p];
+    return '<div style="--tc:'+PROGS[p].color+'"><div class="eqhead">'+q.label+'</div>'+
+      '<ul class="eqlist">'+q.items.map(x=>'<li>'+I.check+esc(x)+'</li>').join("")+'</ul>'+
+      (q.jersey?'<div class="jersey"><b>'+esc(q.jersey.title)+'</b><p>'+esc(q.jersey.text)+'</p></div>':'')+'</div>'; };
+  return '<div class="icard"><h3>'+I.shirt+'Equipment</h3><p>Required for every practice and game.</p>'+order.map(block).join("")+
+    '<div class="gameday"><b>Game day</b><p style="margin-top:4px">Arrive 20 minutes before game time with all required equipment.</p></div></div>';
+}
 function renderInfo(){
   const L=LOCS.nnhs;
   const rows=TEAMS.map(t=>'<tr style="--tc:'+tColor(t.id)+'"><td><i></i>'+esc(t.name)+' <span style="color:var(--muted)">· '+esc(t.days?"Tue only":t.grade.replace(" grade",""))+'</span></td><td>'+fmtRange(t.start,t.stop)+'</td></tr>').join("");
@@ -627,6 +658,7 @@ function renderInfo(){
     '<div class="icard"><h3>'+I.pin+'Practice location</h3><a class="maplink" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener"><p><b>'+esc(L.name)+'</b><br>'+esc(L.addr)+'</p><span class="maphint">Open in Maps ›</span></a><p>Tuesdays &amp; Thursdays · First practice '+fmtDateL(CONFIG.seasonStart)+'<br>Pre-K Festival: Tuesdays only, '+fmtDate(FIRST.prek)+' – '+fmtDate(TEAM.prek.last)+'</p><a class="linkbtn primary" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener">'+I.nav+'Directions</a><a class="linkbtn" href="'+otherMaps(L.addr)[1]+'" target="_blank" rel="noopener">'+otherMaps(L.addr)[0]+'</a><button class="linkbtn" data-act="map" data-wave="1">'+I.map+'Field map</button></div>'+
     '<div class="icard"><h3>'+I.car+'Parking</h3><p>'+esc(CONFIG.parking)+'</p></div>'+
     '<div class="icard"><h3>'+I.bell+'Cancellations</h3><p>'+esc(CONFIG.cancelPolicy)+'</p></div>'+
+    equipCard()+
     '<div class="icard"><h3>'+I.cloud+'Weather policy</h3>'+(CONFIG.weatherPolicy?CONFIG.weatherPolicy.split("\n").map(x=>'<p>'+esc(x)+'</p>').join(""):'<p class="tbd">Weather policy coming soon.</p>')+'</div>'+
     '<div class="icard"><h3>'+I.clock+'Practice times</h3><table class="ttable">'+rows+'</table><p style="font-size:13px;color:var(--muted)">Boys practices run through May 20. Pre-K Festival meets Tuesdays only, Apr 13 – May 18. Boys games: Apr 11, 18, 25 &amp; May 9 · Conference Playoffs May 15–16 · All-Star Game May 22 · State Playoffs May 23. Girls season end date TBA.</p></div>'+
     '<div class="icard"><h3>'+I.people+'Contact</h3>'+contacts+'</div>'+
