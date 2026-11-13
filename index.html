@@ -66,12 +66,16 @@ input,select,textarea{font:inherit;color:var(--ink)}
 
 /* next up card */
 .next{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;position:relative}
-.next-band{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;padding:16px 18px 18px;position:relative;overflow:hidden}
-.next.tonight .next-band{background:linear-gradient(135deg,#F15A29 0%,#D9441A 100%)}
-.next.tonight .next-band:after{background:#fff;opacity:.12}
+.next-band{--base:#0E2345;--tint:transparent;--ph:none;--phs:60% auto;background:linear-gradient(100deg,var(--base) 0%,var(--base) 36%,color-mix(in srgb,var(--base) 45%,transparent) 72%,color-mix(in srgb,var(--base) 10%,transparent) 100%),linear-gradient(var(--tint),var(--tint)),var(--ph) right center/var(--phs) no-repeat,var(--base);color:#fff;padding:16px 18px 18px;position:relative;overflow:hidden}
+.next.tonight .next-band{--base:#E04E1E}
+
 .next.tonight .next-rel{color:#D9441A}
 .tonight-tag{display:inline-block;background:#fff;color:#D9441A;font-family:Oswald,sans-serif;font-weight:700;font-size:13px;letter-spacing:.12em;padding:4px 10px;border-radius:999px;margin-left:8px}
-.next-band:after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:var(--tc);opacity:.22}
+.next-band.p-boys{--ph:url(img/wm-boys.jpg);--tint:rgba(37,99,235,.38)}
+.next-band.p-girls{--ph:url(img/wm-girls.jpg);--tint:rgba(219,39,119,.38)}
+.next-band.p-prek{--ph:url(img/wm-prek.png);--phs:auto 150%}
+.next.tonight .next-band.p-boys,.next.tonight .next-band.p-girls{--tint:rgba(241,90,41,.30)}
+.next-band > *{position:relative;z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.25)}
 .next-top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}
 .tteam{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
 .tteam i{display:none}
@@ -125,7 +129,8 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .tba{margin-top:10px;font-size:13px;color:var(--muted);font-weight:600;text-align:center}
 
 /* picker */
-.hero{background:radial-gradient(120% 90% at 50% 0%,var(--navy3) 0%,var(--navy) 60%);color:#fff;text-align:center;padding:calc(26px + var(--safe-t)) 20px 44px;border-radius:0 0 28px 28px}
+.hero{background:linear-gradient(180deg,rgba(14,35,69,.30) 0%,rgba(14,35,69,.55) 45%,rgba(14,35,69,.92) 82%,#0E2345 100%),url(img/hero-group.jpg) center 45%/cover no-repeat,#0E2345;color:#fff;text-align:center;padding:calc(26px + var(--safe-t)) 20px 44px;border-radius:0 0 28px 28px}
+.hero h1,.hero .k,.hero p{text-shadow:0 2px 12px rgba(0,0,0,.45)}
 .hero img{width:100px;height:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
 .hero .k{font-size:12px;letter-spacing:.2em;font-weight:800;color:var(--orange);margin-top:8px}
 .hero h1{margin:6px 0 4px;font-family:Oswald,sans-serif;font-weight:700;font-size:38px;text-transform:uppercase;letter-spacing:.02em;line-height:1.05}
@@ -139,6 +144,11 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .pick-q h2{margin:0;font-size:22px}
 .pick-q p{margin:6px 0 0;color:var(--muted);font-weight:500}
 .grp{padding:16px 16px 0}
+.grp-ban{height:68px;border-radius:16px;margin:0 0 10px;padding:0 18px;display:flex;align-items:center;color:#fff;font-family:Oswald,sans-serif;font-weight:700;font-size:24px;letter-spacing:.06em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,.3);box-shadow:var(--shadow);
+  background:linear-gradient(90deg,var(--tc) 0%,var(--tc) 40%,color-mix(in srgb,var(--tc) 55%,transparent) 75%,color-mix(in srgb,var(--tc) 25%,transparent) 100%),var(--ph) right center/var(--phs,55% auto) no-repeat,#0E2345}
+.grp-ban.p-boys{--ph:url(img/wm-boys.jpg);--phs:60% auto;background-position:0 0,right 30%}
+.grp-ban.p-girls{--ph:url(img/wm-girls.jpg);--phs:60% auto;background-position:0 0,right 35%}
+.grp-ban.p-prek{--ph:url(img/wm-prek.png);--phs:auto 170%;background:linear-gradient(90deg,var(--tc) 0%,var(--tc) 55%,color-mix(in srgb,var(--tc) 80%,transparent) 100%),url(img/wm-prek.png) right -10px center/auto 170% no-repeat,var(--tc)}
 .grp-h{display:flex;align-items:center;gap:8px;margin:0 2px 10px;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .grp-h i{width:10px;height:10px;border-radius:50%;background:var(--tc)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -148,8 +158,11 @@ input,select,textarea{font:inherit;color:var(--ink)}
 .tcard .g{font-size:13px;color:var(--muted);font-weight:600;margin-top:2px}
 .tcard .tm{font-size:13px;font-weight:700;margin-top:8px;color:var(--navy)}
 .tcard .ck{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff}
-.tcard.sel{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 7%,#fff)}
-.tcard.sel .ck{background:var(--tc);border-color:var(--tc)}
+.tcard{border-top:5px solid var(--tc)}
+.tcard .n{color:var(--tc)}
+.tcard.sel{border-color:var(--tc);background:var(--tc);color:#fff}
+.tcard.sel .n,.tcard.sel .g,.tcard.sel .tm{color:#fff}
+.tcard.sel .ck{background:#fff;border-color:#fff;color:var(--tc)}
 .tcard.wide{grid-column:1/-1}
 .pick-go{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:12px 16px calc(12px + var(--safe-b));background:linear-gradient(to top,var(--bg) 70%,rgba(242,244,248,0))}
 .pick-go button{display:block;width:100%;max-width:568px;margin:0 auto;height:56px;border-radius:16px;background:var(--orange);color:#fff;font-weight:800;font-size:17px;box-shadow:0 8px 20px rgba(241,90,41,.35)}
@@ -257,8 +270,8 @@ const LOCS = {
 };
 const PROGS = {
   prek:  { label: "Pre-K Festival", color: "#3FA63D" },
-  boys:  { label: "Boys",           color: "#16305C" },
-  girls: { label: "Girls",          color: "#F15A29" }
+  boys:  { label: "Boys",           color: "#2563EB" },
+  girls: { label: "Girls",          color: "#DB2777" }
 };
 const TEAMS = [
   { id:"prek", prog:"prek",  name:"Pre-K Festival", short:"Pre-K", grade:"Pre-K · Co-ed (U6)", start:"18:00", stop:"18:45", last:"2027-05-18", days:[2], wave:1, zone:"Right field · stadium end" },
@@ -438,7 +451,7 @@ function render(){
 }
 
 function renderTop(){
-  const tags = S.sel.map(id=>'<span class="tag" style="--tc:'+(TEAM[id].prog==="boys"?"#A9BDE0":tColor(id))+'"><i></i>'+esc(TEAM[id].short)+(S.sel.length>1?'<button class="x" data-act="rm" data-id="'+id+'" aria-label="Remove '+esc(TEAM[id].name)+'">×</button>':'')+'</span>').join("");
+  const tags = S.sel.map(id=>'<span class="tag" style="--tc:'+tColor(id)+'"><i></i>'+esc(TEAM[id].short)+(S.sel.length>1?'<button class="x" data-act="rm" data-id="'+id+'" aria-label="Remove '+esc(TEAM[id].name)+'">×</button>':'')+'</span>').join("");
   return (S.coach?'<div class="coachbar"><span>COACH MODE · changes save instantly for every family</span><button data-act="coachoff">Exit</button></div>':'')+
   '<header class="top"><div class="top-row">'+(S.view!=="home"?'<button class="back" data-act="back" aria-label="Back">'+I.back+'Back</button>':'')+'<img class="top-logo" src="'+A.logo+'" alt="Orange Crush" data-act="logo"><div><div class="top-title">ORANGE CRUSH</div><div class="top-sub">'+esc(CONFIG.season)+' · <b>Parent Hub</b></div></div></div>'+
   '<div class="tags">'+tags+'<button class="tag add" data-act="add">+ Add a child</button><button class="tag ghost" data-act="switch">Switch team</button></div></header>';
@@ -455,7 +468,7 @@ function renderNav(){
 
 function renderPick(){
   const card=(t,wide)=>{ const on=S.sel.includes(t.id); return '<button class="tcard'+(on?" sel":"")+(wide?" wide":"")+'" style="--tc:'+tColor(t.id)+'" data-act="tog" data-id="'+t.id+'" aria-pressed="'+on+'"><span class="ck">'+(on?I.check:"")+'</span><div class="n">'+esc(wide?t.name:t.name.split(" ")[0])+'</div><div class="g">'+esc(t.grade)+'</div><div class="tm">'+dayTag(t)+fmtRange(t.start,t.stop)+'</div></button>'; };
-  const grp=(p,ids)=>'<div class="grp"><div class="grp-h" style="--tc:'+PROGS[p].color+'"><i></i>'+PROGS[p].label+'</div><div class="grid">'+ids.map(id=>card(TEAM[id],p==="prek")).join("")+'</div></div>';
+  const grp=(p,ids)=>'<div class="grp"><div class="grp-ban p-'+p+'" style="--tc:'+PROGS[p].color+'">'+PROGS[p].label+'</div><div class="grid">'+ids.map(id=>card(TEAM[id],p==="prek")).join("")+'</div></div>';
   const n=S.sel.length;
   return '<div class="wrap" style="padding-bottom:110px">'+
     '<div class="hero">'+(S.selSnap&&S.selSnap.length?'<button class="hero-back" data-act="back">'+I.back+'Back</button>':'')+'<img src="'+A.logo+'" alt="Crushy" data-act="logo"><div class="k">ORANGE CRUSH LACROSSE</div><h1>'+esc(CONFIG.season)+'</h1><p>Practices · Games · Directions</p></div>'+
@@ -493,7 +506,7 @@ function nextCard(tid,evs){
   if(today) pre = countdown(e);
   const dayWord = e.start && Number(e.start.split(":")[0])>=17 ? "TONIGHT" : "TODAY";
   return '<div class="next '+(e.status==="cancelled"?"cancelled":"")+(today?" tonight":"")+'" style="--tc:'+c+'">'+
-    '<div class="next-band"><div class="next-top"><span class="tteam"><i></i>'+esc(t.name)+(today?'<span class="tonight-tag">'+dayWord+'</span>':'')+'</span><span class="badge '+e.status+'">'+badge+'</span></div>'+
+    '<div class="next-band p-'+t.prog+'"><div class="next-top"><span class="tteam"><i></i>'+esc(t.name)+(today?'<span class="tonight-tag">'+dayWord+'</span>':'')+'</span><span class="badge '+e.status+'">'+badge+'</span></div>'+
     '<div class="next-when"><div class="next-date">'+fmtDate(e.date)+'</div><div class="next-rel">'+esc(pre)+'</div></div>'+
     '<div class="next-time">'+fmtRange(e.start,e.stop)+' · '+(e.type==="practice"?"Practice":esc(e.title))+'</div></div>'+
     '<div class="next-body">'+
