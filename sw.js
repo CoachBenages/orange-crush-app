@@ -1,5 +1,5 @@
 // Orange Crush app — offline shell cache. Schedule updates always come live from the server.
-const CACHE = "crush-v5";
+const CACHE = "crush-v6";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "img/crushy.png", "img/map-wave1.jpg", "img/map-wave2.jpg", "img/icon-192.png", "img/apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

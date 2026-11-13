@@ -38,6 +38,15 @@ input,select,textarea{font:inherit;color:var(--ink)}
 /* top bar */
 .top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + var(--safe-t)) 16px 12px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .top-row{display:flex;align-items:center;gap:12px}
+.sharebtn{margin-left:auto;flex:none;display:grid;place-items:center;width:42px;height:42px;color:#fff;border-radius:12px;background:rgba(255,255,255,.12)}
+.sharebtn span{display:none}
+.top-row>div{min-width:0}
+.top-title,.top-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:420px){.top.has-back .top-sub{display:none}.top.has-back .top-logo{width:38px;height:38px}}
+.sharebtn svg{width:20px;height:20px}
+.sharecard .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.sharecard button{flex:1;min-width:150px;height:48px;border-radius:12px;font-weight:800;background:#EEF2F8;color:var(--navy)}
+.sharecard button.primary{background:var(--orange);color:#fff}
 .back{flex:none;display:flex;align-items:center;gap:2px;height:40px;padding:0 12px 0 8px;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-weight:800;font-size:15px}
 .back svg{width:20px;height:20px}
 .hero{position:relative}
@@ -416,6 +425,7 @@ window.addEventListener("hashchange",()=>{ const s=readHash(); if(s.length){ S.s
 /* ================= icons ================= */
 const I = {
   globe:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg>',
+  share:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
   back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
   cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
@@ -453,7 +463,7 @@ function render(){
 function renderTop(){
   const tags = S.sel.map(id=>'<span class="tag" style="--tc:'+tColor(id)+'"><i></i>'+esc(TEAM[id].short)+(S.sel.length>1?'<button class="x" data-act="rm" data-id="'+id+'" aria-label="Remove '+esc(TEAM[id].name)+'">×</button>':'')+'</span>').join("");
   return (S.coach?'<div class="coachbar"><span>COACH MODE · changes save instantly for every family</span><button data-act="coachoff">Exit</button></div>':'')+
-  '<header class="top"><div class="top-row">'+(S.view!=="home"?'<button class="back" data-act="back" aria-label="Back">'+I.back+'Back</button>':'')+'<img class="top-logo" src="'+A.logo+'" alt="Orange Crush" data-act="logo"><div><div class="top-title">ORANGE CRUSH</div><div class="top-sub">'+esc(CONFIG.season)+' · <b>Parent Hub</b></div></div></div>'+
+  '<header class="top'+(S.view!=="home"?" has-back":"")+'"><div class="top-row">'+(S.view!=="home"?'<button class="back" data-act="back" aria-label="Back">'+I.back+'Back</button>':'')+'<img class="top-logo" src="'+A.logo+'" alt="Orange Crush" data-act="logo"><div><div class="top-title">'+({schedule:"SCHEDULE",map:"FIELD MAP",info:"INFO",coach:"COACH"}[S.view]||"ORANGE CRUSH")+'</div><div class="top-sub">'+esc(CONFIG.season)+' · <b>Parent Hub</b></div></div><button class="sharebtn" data-act="share" aria-label="Share this app">'+I.share+'<span>Share</span></button></div>'+
   '<div class="tags">'+tags+'<button class="tag add" data-act="add">+ Add a child</button><button class="tag ghost" data-act="switch">Switch team</button></div></header>';
 }
 function notice(){
@@ -547,9 +557,9 @@ function renderSchedule(){
   let evs=selEvents();
   if(S.filter!=="all") evs=evs.filter(e=>e.type===S.filter);
   const pastN=evs.filter(e=>e.ends<now).length;
-  if(!S.past) evs=evs.filter(e=>e.ends>=now);
+  evs=evs.filter(e=>e.ends>=now);
   const f=[["all","All"],["practice","Practices"],["game","Games"],["event","Events"]];
-  let html='<section class="sec"><div class="chips">'+f.map(([k,l])=>'<button class="chip'+(S.filter===k?" on":"")+'" data-act="filter" data-f="'+k+'">'+l+'</button>').join("")+(pastN?'<button class="chip'+(S.past?" on":"")+'" data-act="past">'+(S.past?"Hide past":"Show past ("+pastN+")")+'</button>':'')+'</div>';
+  let html='<section class="sec"><div class="chips">'+f.map(([k,l])=>'<button class="chip'+(S.filter===k?" on":"")+'" data-act="filter" data-f="'+k+'">'+l+'</button>').join("")+'</div>';
   if(!evs.length){
     html+='<div class="empty" style="margin-top:14px">'+(S.filter==="game"?"Games will be posted here once the schedule is set.":S.filter==="event"?"Special events will be posted here.":"Nothing scheduled.")+'</div>';
   } else {
@@ -579,6 +589,7 @@ function renderInfo(){
   const rows=TEAMS.map(t=>'<tr style="--tc:'+tColor(t.id)+'"><td><i></i>'+esc(t.name)+' <span style="color:var(--muted)">· '+esc(t.days?"Tue only":t.grade.replace(" grade",""))+'</span></td><td>'+fmtRange(t.start,t.stop)+'</td></tr>').join("");
   const contacts = CONFIG.contacts.length ? CONFIG.contacts.map(c=>'<p><b>'+esc(c.name)+'</b>'+(c.role?' · '+esc(c.role):'')+(c.email?'<br><a href="mailto:'+esc(c.email)+'" style="color:var(--orange);font-weight:700">'+esc(c.email)+'</a>':'')+(c.phone?'<br><a href="tel:'+esc(c.phone.replace(/[^0-9+]/g,""))+'" style="color:var(--orange);font-weight:700">'+esc(c.phone)+'</a>':'')+'</p>').join("")+(CONFIG.contactNote?'<p style="font-size:14px;color:var(--muted)">'+esc(CONFIG.contactNote)+'</p>':'') : '<p class="tbd">Contact info coming soon.</p>';
   return '<section class="sec">'+
+    '<div class="icard sharecard"><h3>'+I.share+'Share Orange Crush</h3><p>Send the app to another parent, grandparent or carpool driver.</p><div class="row"><button class="primary" data-act="share">Share the app</button>'+(S.sel.length?'<button data-act="share" data-team="1">Share '+esc(S.sel.length===1?TEAM[S.sel[0]].short:"my teams")+' schedule</button>':'')+'</div></div>'+
     '<div class="icard"><h3>'+I.pin+'Practice location</h3><a class="maplink" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener"><p><b>'+esc(L.name)+'</b><br>'+esc(L.addr)+'</p><span class="maphint">Open in Maps ›</span></a><p>Tuesdays &amp; Thursdays · First practice '+fmtDateL(CONFIG.seasonStart)+'<br>Pre-K Festival: Tuesdays only, '+fmtDate(FIRST.prek)+' – '+fmtDate(TEAM.prek.last)+'</p><a class="linkbtn primary" href="'+mapsURL(L.addr)+'" target="_blank" rel="noopener">'+I.nav+'Directions</a><a class="linkbtn" href="'+otherMaps(L.addr)[1]+'" target="_blank" rel="noopener">'+otherMaps(L.addr)[0]+'</a><button class="linkbtn" data-act="map" data-wave="1">'+I.map+'Field map</button></div>'+
     '<div class="icard"><h3>'+I.car+'Parking</h3><p>'+esc(CONFIG.parking)+'</p></div>'+
     '<div class="icard"><h3>'+I.bell+'Cancellations</h3><p>'+esc(CONFIG.cancelPolicy)+'</p></div>'+
@@ -750,7 +761,16 @@ document.addEventListener("click",async ev=>{
     case "rm": ev.stopPropagation(); S.sel=S.sel.filter(x=>x!==el.dataset.id); writeHash(); render(); return;
     case "go": goView(el.dataset.v); if(S.view==="map") S.wave=defaultWave(); render(); window.scrollTo(0,0); return;
     case "filter": S.filter=el.dataset.f; render(); return;
-    case "past": S.past=!S.past; render(); return;
+    case "share":{
+      const base=location.origin+location.pathname;
+      const team=el.dataset.team && S.sel.length;
+      const url=team?base+"#"+S.sel.join("-"):base;
+      const who=team?S.sel.map(id=>TEAM[id].name).join(" & ")+" schedule":"Parent Hub";
+      const data={title:"Orange Crush Lacrosse "+who,text:"Orange Crush Lacrosse "+who+": practices, games, field maps and directions.",url};
+      if(navigator.share){ try{ await navigator.share(data); }catch(e){} }
+      else { try{ await navigator.clipboard.writeText(url); toast("Link copied: paste it in a text or email"); }catch(e){ toast(url); } }
+      return;
+    }
     case "wave": S.wave=Number(el.dataset.w); render(); return;
     case "map": S.wave=Number(el.dataset.wave)||defaultWave(); goView("map"); render(); window.scrollTo(0,0); return;
     case "zoom": openViewer(); return;
